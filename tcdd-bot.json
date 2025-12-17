@@ -1,0 +1,426 @@
+{
+  "extVersion": "1.28.27",
+  "name": "tcdd-bot-v1.2",
+  "icon": "riGlobalLine",
+  "table": [],
+  "version": "1.28.27",
+  "drawflow": {
+    "nodes": [
+      {
+        "type": "BlockBasic",
+        "data": {
+          "activeInInput": false,
+          "contextMenuName": "",
+          "contextTypes": [],
+          "date": "",
+          "days": [],
+          "delay": 5,
+          "description": "",
+          "disableBlock": false,
+          "interval": 60,
+          "isUrlRegex": false,
+          "observeElement": {
+            "baseElOptions": {
+              "attributeFilter": [],
+              "attributes": false,
+              "characterData": false,
+              "childList": true,
+              "subtree": false
+            },
+            "baseSelector": "",
+            "matchPattern": "",
+            "selector": "",
+            "targetOptions": {
+              "attributeFilter": [],
+              "attributes": false,
+              "characterData": false,
+              "childList": true,
+              "subtree": false
+            }
+          },
+          "parameters": [],
+          "preferParamsInTab": false,
+          "shortcut": "",
+          "time": "00:00",
+          "type": "manual",
+          "url": ""
+        },
+        "events": {},
+        "id": "XmGfVGgzxqE01YjXZOohV",
+        "label": "trigger",
+        "position": { "x": -183.67695946688286, "y": 344.3376138400153 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "description": "find available seats",
+          "timeout": 20000,
+          "context": "website",
+          "code": "\n// Function to extract available seats for a specific ride (e.g., 'gidis13')\nfunction getAvailableSeatsForSpecificRide(rideId) {\n    const rideDiv = document.getElementById(rideId); // Select the div with the given ride ID\n    if (!rideDiv) {\n        console.error('Ride not found');\n        return { businessSeats: 0, ekonomiSeats: 0 };\n    }\n\n    const seatElements = rideDiv.querySelectorAll('span.emptySeat');\n    let businessSeats = 0;\n    let ekonomiSeats = 0;\n\n    seatElements.forEach(element => {\n        const button = element.closest('button');\n        const category = button.querySelector('span.text-left').textContent.trim();\n\n        // Check for BUSINESS class\n        if (category === 'BUSİNESS') {\n            const seatsText = element.textContent.trim();\n            businessSeats = parseInt(seatsText.replace(/[^\\d]/g, '')); // Extract number from text like \"(39)\"\n        }\n\n        // Check for EKONOMİ class\n        if (category === 'EKONOMİ') {\n            const seatsText = element.textContent.trim();\n            ekonomiSeats = parseInt(seatsText.replace(/[^\\d]/g, '')); // Extract number from text like \"(415)\"\n        }\n    });\n\n    return { businessSeats, ekonomiSeats };\n}\n\n\n// Get the rideId variable set earlier in Automa\nvar rideId = 'gidis13'; \nvar seats = getAvailableSeatsForSpecificRide(rideId);\n//automaSetVariable('$$ekonomi', seats.ekonomiSeats)\n//automaSetVariable('$$business', seats.businessSeats)\nvar total_seat = seats.ekonomiSeats + seats.businessSeats;\nif(total_seat > 0) {\n  automaSetVariable('$$availableRideId', 'gidis13');\n  if(seats.ekonomiSeats) {\n    automaSetVariable('$$availableCategory', 'EKONOMİ');\n  }\n  else {\n    automaSetVariable('$$availableCategory', 'BUSİNESS');\n  }\n  automaNextBlock();\n}\n\nelse {\n  rideId = 'gidis14';\n  seats = getAvailableSeatsForSpecificRide(rideId);\n  total_seat = total_seat + seats.ekonomiSeats + seats.businessSeats;\n  if(total_seat > 0) {\n    automaSetVariable('$$availableRideId', 'gidis14');\n    if(seats.ekonomiSeats) {\n      automaSetVariable('$$availableCategory', 'EKONOMİ');\n    }\n    else {\n      automaSetVariable('$$availableCategory', 'BUSİNESS');\n    }\n    automaNextBlock();\n  }\n  else {\n    rideId = 'gidis15';\n    seats = getAvailableSeatsForSpecificRide(rideId);\n    total_seat = total_seat + seats.ekonomiSeats + seats.businessSeats;\n    if(total_seat > 0) {\n      automaSetVariable('$$availableRideId', 'gidis15');\n      if(seats.ekonomiSeats) {\n        automaSetVariable('$$availableCategory', 'EKONOMİ');\n      }\n      else {\n        automaSetVariable('$$availableCategory', 'BUSİNESS');\n      }\n      automaNextBlock();\n    }\n  }\n}\nif (total_seat === 0) {\n  automaNextBlock({ title: 'Hello' }, { nextBlockId: 'zme8s6c' })\n}\n//else {\n//  automaNextBlock({ title: 'Hello' }, { nextBlockId: 'dsqvke0' })\n//}\n\n",
+          "preloadScripts": [],
+          "everyNewTab": false,
+          "runBeforeLoad": false,
+          "onError": {
+            "dataToInsert": [],
+            "enable": false,
+            "insertData": false,
+            "retry": false,
+            "retryInterval": 2,
+            "retryTimes": 1,
+            "toDo": "error"
+          },
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "id": "i1bl7wi",
+        "label": "javascript-code",
+        "position": { "x": 749.5647347592723, "y": 346.92545704501237 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "id": "vomhk1h",
+        "label": "active-tab",
+        "position": { "x": 352.57174297620827, "y": 340.85408155624964 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "description": "find and lock seat",
+          "timeout": 20000,
+          "context": "website",
+          "code": "// Get rideId and category from the variable reference\nconst availableRideId = automaRefData('variables', '$$availableRideId');\nconst availableCategory = automaRefData('variables', '$$availableCategory');\nconsole.log('Available Ride ID:', availableRideId);\nconsole.log('Available Category:', availableCategory);\n\nfunction clickButtonBasedOnClassInRideDiv(rideId, className) {\n    const rideDiv = document.getElementById(rideId);\n    console.log('Ride Div:', rideDiv);\n\n    if (!rideDiv) {\n        console.log('Ride not found');\n        return;\n    }\n\n    const buttons = rideDiv.querySelectorAll('button');\n    let foundButton = null;\n\n    buttons.forEach(button => {\n        const categorySpan = button.querySelector('span.text-left');\n        console.log('Category Span:', categorySpan);\n\n        if (categorySpan && categorySpan.textContent.trim().toLowerCase() === className.toLowerCase()) {\n            foundButton = button;\n        }\n    });\n\n    if (foundButton) {\n        if (!foundButton.classList.contains('disabled')) {\n            foundButton.click();\n            console.log(`Clicked the ${className} button.`);\n\n            const selectButton = Array.from(rideDiv.querySelectorAll('button')).find(button => {\n                const buttonText = button.textContent.trim();\n                console.log('Button Text:', buttonText);\n                return buttonText === \"Seçin\";\n            });\n\n            if (selectButton) {\n                selectButton.click();\n                console.log('Clicked the \"Seçin\" button.');\n            } else {\n                console.log('No \"Seçin\" button found inside the ride div.');\n            }\n        } else {\n            console.log(`The ${className} button is disabled.`);\n        }\n    } else {\n        console.log(`${className} not found in the specified ride div.`);\n    }\n}\n\n\nclickButtonBasedOnClassInRideDiv(availableRideId, availableCategory);\n\nfunction clickDevamEtButton() {\n    const buttons = document.querySelectorAll('button');\n    let devamEtButton = null;\n\n    buttons.forEach(button => {\n        const buttonText = button.textContent.trim();\n        console.log('Button Text:', buttonText);\n\n        if (buttonText === \"Devam Et\") {\n            devamEtButton = button;\n        }\n    });\n\n    if (devamEtButton) {\n        devamEtButton.click();\n        console.log('Clicked the \"Devam Et\" button.');\n    } else {\n        console.log('No \"Devam Et\" button found on the page.');\n    }\n}\n\nclickDevamEtButton();\n\n",
+          "preloadScripts": [],
+          "everyNewTab": false,
+          "runBeforeLoad": false,
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "id": "b2z5hz3",
+        "label": "javascript-code",
+        "position": { "x": 1409.6639734562737, "y": 355.15022107540557 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": { "disableBlock": false },
+        "events": {},
+        "id": "9jkwrmb",
+        "label": "reload-tab",
+        "position": { "x": 16.09826043534588, "y": 616.0515091669738 }
+      },
+      {
+        "type": "BlockDelay",
+        "data": { "disableBlock": false, "time": "5000" },
+        "events": {},
+        "id": "j34mfm4",
+        "label": "delay",
+        "position": { "x": 344.94269160268436, "y": 610.9658858292539 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": { "disableBlock": false },
+        "events": {},
+        "id": "zme8s6c",
+        "label": "active-tab",
+        "position": { "x": -251.8342318673191, "y": 614.648159611912 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "description": "TREN 15",
+          "message": "TREN 15",
+          "iconUrl": "",
+          "imageUrl": "https://w7.pngwing.com/pngs/16/547/png-transparent-ankara-railway-station-ankara-high-speed-train-station-ankara-istanbul-high-speed-railway-train-mode-of-transport-public-transport-train-station.png",
+          "title": "TREN 15"
+        },
+        "events": {},
+        "position": { "x": 441.0850342341831, "y": 191.6652597563984 },
+        "label": "notification",
+        "id": "5uqcrsh"
+      },
+      {
+        "type": "BlockBasic",
+        "data": { "disableBlock": false },
+        "events": {},
+        "position": { "x": 126.01928664383752, "y": 197.01261425431272 },
+        "label": "active-tab",
+        "id": "dsqvke0"
+      },
+      {
+        "type": "BlockDelay",
+        "data": { "disableBlock": false, "time": "50000" },
+        "events": {},
+        "position": { "x": 1174.1230095245323, "y": 140.8883629808053 },
+        "label": "delay",
+        "id": "dbcmikz"
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "label": "active-tab",
+        "id": "x5dk0im",
+        "position": { "x": 1044.642664198425, "y": 348.1631958366874 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "label": "active-tab",
+        "id": "ynuk23s",
+        "position": { "x": 1704.7514208809923, "y": 353.41194229028883 }
+      },
+      {
+        "type": "BlockBasic",
+        "data": {
+          "disableBlock": false,
+          "description": "choose category and continue",
+          "timeout": 20000,
+          "context": "website",
+          "code": "const emptyEkonomiSeatImageUrl = 'data:image/png;base64,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';\nconst emptyBusinessSeatImageUrl = 'data:image/png;base64,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'\nlet seatSelected = false;\n\nlet gender = 0;\nif (automaRefData('variables', '$$gender') === 'male') {\n  gender = 1;\n}\n\nasync function waitForWagonButtons() {\n    return new Promise((resolve) => {\n        const interval = setInterval(() => {\n            // Check if there are any wagon buttons\n            const wagonButtons = document.querySelectorAll('.wagonMap button');\n            if (wagonButtons.length > 0) {\n                clearInterval(interval);\n                console.log('Wagon buttons loaded, proceeding with selecting seats.');\n                resolve();  // Resolve the promise when wagon buttons are found\n            }\n        }, 1000);  // Retry every second\n    });\n}\n\nfunction chooseGenderInPopup() {\n    return new Promise((resolve, reject) => {\n        // Find the popup that contains the gender options\n        const genderButtons = document.querySelectorAll('.popover-body .popoverBtn');\n        console.log('Gender Buttons:', genderButtons);\n\n        if (genderButtons.length > 0) {\n            // Choose the \"Women\" option (first button) or \"Men\" option (second button) based on your requirement\n            genderButtons[gender].click(); // Click \"Women\" button (first button)\n            console.log('Clicked the gender button.');\n            resolve();\n        } else {\n            console.log('No gender buttons found in the popup.');\n            reject('No gender buttons found');\n        }\n    });\n}\n\n// Function to find and click the first available seat\nasync function clickFirstAvailableSeat() {\n    // Find the section with the seat map\n    const seatMapSection = document.querySelector('.row .rotateSeatMap');\n    console.log('Seat Map Section:', seatMapSection);\n\n    // Find all the seats inside the seat map\n    const seats = seatMapSection.querySelectorAll('.seatMapClick');\n    console.log('Seats Found:', seats);\n\n    // Iterate through each seat to check for availability\n    for (let seat of seats) {\n        // Check if the seat has a valid seat number (and potentially not empty)\n        const seatImage = seat.querySelector('img');\n        const seatNumber = seat.querySelector('.seatNumber');\n\n        // If the seat has a number and is available (not empty)\n        if (((seatImage.src === emptyEkonomiSeatImageUrl) || (seatImage.src === emptyBusinessSeatImageUrl)) && !seatSelected) {\n            console.log('Available Seat Found:', seatNumber.textContent);\n            // Click the first available seat\n            seat.click();\n            console.log('Clicked seat:', seatNumber.textContent);\n            seatSelected = true;\n            await chooseGenderInPopup();\n            break;  // Stop once we click the seat\n        }\n    }\n\n    if (!seatSelected) {\n        console.log('No available seats found.');\n    }\n}\n\n// Function to wait until the seat map is loaded\nasync function waitForSeatMap() {\n    return new Promise((resolve) => {\n        const interval = setInterval(() => {\n            const seatMapSection = document.querySelector('.row .rotateSeatMap');\n            if (seatMapSection && seatMapSection.querySelectorAll('.seatMapClick').length > 0) {\n                clearInterval(interval);\n                console.log('Seat map loaded, proceeding with selecting seats.');\n                resolve();\n            }\n        }, 50);  // Retry every second\n    });\n}\n\n// Function to click the available seats in the wagons\nasync function clickAvailableSeats() {\n    // Get all the buttons inside the wagon map section\n    const wagonButtons = document.querySelectorAll('.wagonMap button');\n    console.log('Found Buttons:', wagonButtons);\n\n    // Iterate over each button to extract seat information and click if seats are available\n    for (let button of wagonButtons) {\n        // Find the span containing the number of available seats\n        const seatCountSpan = button.querySelector('.textEmptySeat span');\n        if (seatCountSpan) {\n            const availableSeats = parseInt(seatCountSpan.textContent.trim(), 10);  // Convert to integer\n            console.log('Available Seats:', availableSeats);\n\n            // Check if seats are available (greater than 0)\n            if (availableSeats > 0 && !seatSelected) {\n                // Click the button if there are available seats\n                button.click();\n                console.log('Clicked the button for the wagon with available seats.');\n                \n                // Wait for the seat map to load\n                await waitForSeatMap();\n\n                // Call the function to click the first available seat\n                await clickFirstAvailableSeat();\n\n                if (seatSelected) {\n                    console.log('Seat successfully selected. Stopping the process.');\n                    break; // Stop after clicking the first available seat\n                }\n            }\n        } else {\n            console.log('No seat count found for this button.');\n        }\n    }\n\n    if (!seatSelected) {\n        console.log('No available seats in any of the wagons.');\n    }\n}\n\nasync function main() {\n    // Wait for the page to fully load\n    await waitForWagonButtons();\n    console.log('Page has fully loaded, starting seat selection.');\n\n    // Now, start the process of selecting available seats\n    await clickAvailableSeats();\n}\n\n// Run the main function\nmain();",
+          "preloadScripts": [],
+          "everyNewTab": false,
+          "runBeforeLoad": false,
+          "settings": { "blockTimeout": 0, "debugMode": false }
+        },
+        "events": {},
+        "label": "javascript-code",
+        "id": "5bcor0k",
+        "position": { "x": 1977.2868061429504, "y": 356.92931724469855 }
+      }
+    ],
+    "edges": [
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "vomhk1h-output-1",
+        "targetHandle": "i1bl7wi-input-1",
+        "source": "vomhk1h",
+        "target": "i1bl7wi",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-vomhk1hvomhk1h-output-1-i1bl7wii1bl7wi-input-1",
+        "sourceX": 564.5717429762083,
+        "sourceY": 376.85408155624964,
+        "targetX": 729.5647347592723,
+        "targetY": 382.92545704501237
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "9jkwrmb-output-1",
+        "targetHandle": "j34mfm4-input-1",
+        "source": "9jkwrmb",
+        "target": "j34mfm4",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-9jkwrmb9jkwrmb-output-1-j34mfm4j34mfm4-input-1",
+        "sourceX": 228.09826043534588,
+        "sourceY": 652.0515091669738,
+        "targetX": 324.94269160268436,
+        "targetY": 669.6825606339414,
+        "class": "connected-edges"
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "j34mfm4-output-1",
+        "targetHandle": "vomhk1h-input-1",
+        "source": "j34mfm4",
+        "target": "vomhk1h",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-j34mfm4j34mfm4-output-1-vomhk1hvomhk1h-input-1",
+        "sourceX": 556.9426916026844,
+        "sourceY": 669.6825606339414,
+        "targetX": 332.57174297620827,
+        "targetY": 376.85408155624964,
+        "class": "connected-edges"
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "zme8s6c-output-1",
+        "targetHandle": "9jkwrmb-input-1",
+        "source": "zme8s6c",
+        "target": "9jkwrmb",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-zme8s6czme8s6c-output-1-9jkwrmb9jkwrmb-input-1",
+        "sourceX": -39.83423186731909,
+        "sourceY": 650.648159611912,
+        "targetX": -3.9017395646541218,
+        "targetY": 652.0515091669738
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "dsqvke0-output-1",
+        "targetHandle": "5uqcrsh-input-1",
+        "source": "dsqvke0",
+        "target": "5uqcrsh",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-dsqvke0dsqvke0-output-1-5uqcrsh5uqcrsh-input-1",
+        "sourceX": 338.0192866438375,
+        "sourceY": 233.01261425431272,
+        "targetX": 421.0850342341831,
+        "targetY": 227.66527501518746
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "5uqcrsh-output-1",
+        "targetHandle": "dbcmikz-input-1",
+        "source": "5uqcrsh",
+        "target": "dbcmikz",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-5uqcrsh5uqcrsh-output-1-dbcmikzdbcmikz-input-1",
+        "sourceX": 653.0850342341831,
+        "sourceY": 227.66527501518746,
+        "targetX": 1154.1230095245323,
+        "targetY": 199.6050377854928
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "x5dk0im-output-1",
+        "targetHandle": "b2z5hz3-input-1",
+        "source": "x5dk0im",
+        "target": "b2z5hz3",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-x5dk0imx5dk0im-output-1-b2z5hz3b2z5hz3-input-1",
+        "sourceX": 1256.642664198425,
+        "sourceY": 384.1631958366874,
+        "targetX": 1389.6639734562737,
+        "targetY": 391.15022107540557
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "ynuk23s-output-1",
+        "targetHandle": "5bcor0k-input-1",
+        "source": "ynuk23s",
+        "target": "5bcor0k",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-ynuk23synuk23s-output-1-5bcor0k5bcor0k-input-1",
+        "sourceX": 1916.7514208809923,
+        "sourceY": 389.41194229028883,
+        "targetX": 1957.2868061429504,
+        "targetY": 392.92931724469855,
+        "class": "connected-edges"
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "XmGfVGgzxqE01YjXZOohV-output-1",
+        "targetHandle": "vomhk1h-input-1",
+        "source": "XmGfVGgzxqE01YjXZOohV",
+        "target": "vomhk1h",
+        "data": {},
+        "events": {},
+        "class": "source-XmGfVGgzxqE01YjXZOohV-output-1 target-vomhk1h-input-1",
+        "id": "vueflow__edge-XmGfVGgzxqE01YjXZOohVXmGfVGgzxqE01YjXZOohV-output-1-vomhk1hvomhk1h-input-1",
+        "sourceX": 28.323040533117137,
+        "sourceY": 380.3376138400153,
+        "targetX": 332.57174297620827,
+        "targetY": 376.85408155624964
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "i1bl7wi-output-1",
+        "targetHandle": "x5dk0im-input-1",
+        "source": "i1bl7wi",
+        "target": "x5dk0im",
+        "data": {},
+        "events": {},
+        "id": "vueflow__edge-i1bl7wii1bl7wi-output-1-x5dk0imx5dk0im-input-1",
+        "sourceX": 961.5647347592723,
+        "sourceY": 382.92545704501237,
+        "targetX": 1024.642664198425,
+        "targetY": 384.1631958366874
+      },
+      {
+        "type": "custom",
+        "updatable": true,
+        "selectable": true,
+        "markerEnd": "arrowclosed",
+        "sourceHandle": "b2z5hz3-output-1",
+        "targetHandle": "ynuk23s-input-1",
+        "source": "b2z5hz3",
+        "target": "ynuk23s",
+        "data": {},
+        "events": {},
+        "class": "source-b2z5hz3-output-1 target-ynuk23s-input-1",
+        "id": "vueflow__edge-b2z5hz3b2z5hz3-output-1-ynuk23synuk23s-input-1",
+        "sourceX": 1621.6639734562737,
+        "sourceY": 391.15022107540557,
+        "targetX": 1684.7514208809923,
+        "targetY": 389.41194229028883
+      }
+    ],
+    "position": [140.631341396599, 179.13772803415657],
+    "zoom": 0.3831549900519457,
+    "viewport": {
+      "x": 140.631341396599,
+      "y": 179.13772803415657,
+      "zoom": 0.3831549900519457
+    }
+  },
+  "settings": {
+    "publicId": "",
+    "blockDelay": 0,
+    "saveLog": true,
+    "debugMode": false,
+    "restartTimes": 3,
+    "notification": true,
+    "execContext": "popup",
+    "reuseLastState": false,
+    "inputAutocomplete": true,
+    "onError": "stop-workflow",
+    "executedBlockOnWeb": false,
+    "insertDefaultColumn": false,
+    "defaultColumnName": "column",
+    "tabLoadTimeout": 30000
+  },
+  "globalData": "{\n\t\"key\": \"value\"\n}",
+  "description": "",
+  "includedWorkflows": {}
+}
